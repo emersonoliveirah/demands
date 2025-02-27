@@ -1,5 +1,7 @@
 package com.demands.infraestructure.entity;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -18,9 +20,11 @@ public class DemandEntity {
 
     @Id
     private String demandId;
+    @NotBlank(message = "O campo userId é obrigatório.")
     private String userId; // Usuário principal
     private List<String> userIds; // Lista de IDs de usuários adicionais
     private String title;
+    @NotNull(message = "O campo description é obrigatório.")
     private String description;
     private DemandStatus status;
     private String startDate;
@@ -30,7 +34,6 @@ public class DemandEntity {
     private LocalDateTime pauseTime;
     private long totalDuration; // in seconds
     private boolean autoStart;
-
     @LastModifiedDate
     private LocalDateTime statusDate;
 
