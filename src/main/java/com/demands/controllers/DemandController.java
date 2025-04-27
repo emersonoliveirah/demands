@@ -6,6 +6,7 @@ import com.demands.infraestructure.exceptions.ApiResponse;
 import com.demands.infraestructure.exceptions.DemandNotFound;
 import com.demands.infraestructure.exceptions.InvalidStatusException;
 import com.demands.services.DemandService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,8 +22,19 @@ public class DemandController {
 
     private final DemandService demandService;
 
+//    @PostMapping
+//    public ResponseEntity<ApiResponse> createDemand(@RequestBody DemandDTO demandDTO) {
+//        DemandEntity demand = convertToEntity(demandDTO);
+//        DemandEntity createdDemand = demandService.createDemand(demand);
+//        DemandDTO createdDemandDTO = convertToDTO(createdDemand);
+//        ApiResponse response = new ApiResponse(HttpStatus.OK.value(), "Demanda criada com sucesso.", createdDemandDTO);
+//        return new ResponseEntity<>(response, HttpStatus.OK);
+//    }
+
     @PostMapping
-    public ResponseEntity<ApiResponse> createDemand(@RequestBody DemandDTO demandDTO) {
+    public ResponseEntity<ApiResponse> createDemand(HttpServletRequest request, @RequestBody DemandDTO demandDTO) {
+        String userEmail = (String) request.getAttribute("userEmail");
+        demandDTO.setUserId(userEmail); // <-- garanta que salva o email do usuário autenticado
         DemandEntity demand = convertToEntity(demandDTO);
         DemandEntity createdDemand = demandService.createDemand(demand);
         DemandDTO createdDemandDTO = convertToDTO(createdDemand);
@@ -71,25 +83,35 @@ public class DemandController {
         demandService.deleteDemand(demandId);
         return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), "Demanda deletada com sucesso."), HttpStatus.OK);
     }
+//
+//    @GetMapping("/{demandId}")
+//    public ResponseEntity<DemandDTO> getDemand(@PathVariable String demandId) {
+//        DemandEntity demand = demandService.getDemand(demandId);
+//        DemandDTO demandDTO = convertToDTO(demand);
+//        return ResponseEntity.ok(demandDTO);
+//    }
+//
+//    @GetMapping("/user/{userId}")
+//    public ResponseEntity<?> getDemandsByAnyUserId(@PathVariable String userId) {
+//        try {
+//            List<DemandEntity> demands = demandService.getDemandsByAnyUserId(userId);
+//            List<DemandDTO> demandDTOs = demands.stream()
+//                    .map(this::convertToDTO)
+//                    .collect(Collectors.toList());
+//            return ResponseEntity.ok(demandDTOs);
+//        } catch (DemandNotFound ex) {
+//            return new ResponseEntity<>(new ApiResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage()), HttpStatus.NOT_FOUND);
+//        }
+//    }
 
-    @GetMapping("/{demandId}")
-    public ResponseEntity<DemandDTO> getDemand(@PathVariable String demandId) {
-        DemandEntity demand = demandService.getDemand(demandId);
-        DemandDTO demandDTO = convertToDTO(demand);
-        return ResponseEntity.ok(demandDTO);
-    }
-
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<?> getDemandsByAnyUserId(@PathVariable String userId) {
-        try {
-            List<DemandEntity> demands = demandService.getDemandsByAnyUserId(userId);
-            List<DemandDTO> demandDTOs = demands.stream()
-                    .map(this::convertToDTO)
-                    .collect(Collectors.toList());
-            return ResponseEntity.ok(demandDTOs);
-        } catch (DemandNotFound ex) {
-            return new ResponseEntity<>(new ApiResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage()), HttpStatus.NOT_FOUND);
-        }
+    @GetMapping
+    public ResponseEntity<List<DemandDTO>> getUserDemands(HttpServletRequest request) {
+        String userEmail = (String) request.getAttribute("userEmail");
+        List<DemandEntity> demands = demandService.getDemandsByUserEmail(userEmail);
+        List<DemandDTO> demandDTOs = demands.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(demandDTOs);
     }
 
 
@@ -107,17 +129,17 @@ public class DemandController {
         return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), "Todas as demandas foram deletadas com sucesso."), HttpStatus.OK);
     }
 
-    @GetMapping
-    public ResponseEntity<List<DemandDTO>> getAllDemands() {
-        List<DemandEntity> demands = demandService.getAllDemands();
-        if (demands.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        List<DemandDTO> demandDTOs = demands.stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(demandDTOs);
-    }
+//    @GetMapping
+//    public ResponseEntity<List<DemandDTO>> getAllDemands() {
+//        List<DemandEntity> demands = demandService.getAllDemands();
+//        if (demands.isEmpty()) {
+//            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+//        }
+//        List<DemandDTO> demandDTOs = demands.stream()
+//                .map(this::convertToDTO)
+//                .collect(Collectors.toList());
+//        return ResponseEntity.ok(demandDTOs);
+//    }
 
     @GetMapping("/status/{status}")
     public ResponseEntity<?> getDemandsByStatus(@PathVariable String status) {
