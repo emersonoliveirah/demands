@@ -1,12 +1,14 @@
 package com.demands.controllers;
 
 import com.demands.dtos.DemandDTO;
+import com.demands.dtos.TimerDTO;
 import com.demands.infraestructure.entity.DemandEntity;
 import com.demands.infraestructure.exceptions.ApiResponse;
 import com.demands.infraestructure.exceptions.DemandNotFound;
 import com.demands.infraestructure.exceptions.InvalidStatusException;
 import com.demands.services.DemandService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,7 +34,7 @@ public class DemandController {
 //    }
 
     @PostMapping
-    public ResponseEntity<ApiResponse> createDemand(HttpServletRequest request, @RequestBody DemandDTO demandDTO) {
+    public ResponseEntity<ApiResponse> createDemand(HttpServletRequest request, @Valid @RequestBody DemandDTO demandDTO) {
         String userEmail = (String) request.getAttribute("userEmail");
         demandDTO.setUserId(userEmail); // <-- garanta que salva o email do usuário autenticado
         DemandEntity demand = convertToEntity(demandDTO);
@@ -114,11 +116,20 @@ public class DemandController {
         return ResponseEntity.ok(demandDTOs);
     }
 
-
     @PutMapping("/{demandId}/update")
-    public ResponseEntity<ApiResponse> updateDemand(@RequestBody DemandDTO demandDTO) {
+    public ResponseEntity<ApiResponse> updateDemand(@PathVariable String demandId, @RequestBody DemandDTO demandDTO) {
+        // Buscar a demanda existente para preservar o userId
+        DemandEntity existingDemand = demandService.getDemand(demandId);
+        if (existingDemand == null) {
+            return new ResponseEntity<>(new ApiResponse(HttpStatus.NOT_FOUND.value(), "Demanda não encontrada."), HttpStatus.NOT_FOUND);
+        }
+
+        // Preservar o userId da demanda existente
+        demandDTO.setUserId(existingDemand.getUserId());
+
         DemandEntity demand = convertToEntity(demandDTO);
         demandService.updateDemand(demand);
+
         ApiResponse response = new ApiResponse(HttpStatus.OK.value(), "Demanda atualizada com sucesso.", demandDTO);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -153,6 +164,16 @@ public class DemandController {
             return new ResponseEntity<>(new ApiResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage()), HttpStatus.NOT_FOUND);
         } catch (InvalidStatusException ex) {
             return new ResponseEntity<>(new ApiResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage()), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PutMapping("/{demandId}/timer")
+    public ResponseEntity<ApiResponse> updateDemandTimer(@PathVariable String demandId, @RequestBody TimerDTO timerDTO) {
+        try {
+            demandService.updateDemandTimer(demandId, timerDTO.getStartTime(), timerDTO.getEndTime());
+            return new ResponseEntity<>(new ApiResponse(HttpStatus.OK.value(), "Timer da demanda atualizado com sucesso."), HttpStatus.OK);
+        } catch (DemandNotFound ex) {
+            return new ResponseEntity<>(new ApiResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage()), HttpStatus.NOT_FOUND);
         }
     }
 

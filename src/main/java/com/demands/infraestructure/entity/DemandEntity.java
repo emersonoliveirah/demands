@@ -34,6 +34,7 @@ public class DemandEntity {
     private LocalDateTime pauseTime;
     private long totalDuration; // in seconds
     private boolean autoStart;
+    private LocalDateTime endTime;
     @LastModifiedDate
     private LocalDateTime statusDate;
 

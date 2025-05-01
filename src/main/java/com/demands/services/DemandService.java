@@ -151,4 +151,24 @@ public class DemandService {
         log.info("Deleting all demands");
         demandRepository.deleteAll();
     }
+
+    public void updateDemandTimer(String demandId, String startTime, String endTime) {
+        DemandEntity demand = getDemand(demandId);
+        if (demand == null) {
+            throw new DemandNotFound("Demanda não encontrada.");
+        }
+
+        // Convert String to LocalDateTime
+        demand.setStartTime(LocalDateTime.parse(startTime));
+        demand.setEndTime(LocalDateTime.parse(endTime));
+
+        // Calculate the total duration
+        long duration = Duration.between(
+                LocalDateTime.parse(startTime),
+                LocalDateTime.parse(endTime)
+        ).toSeconds();
+        demand.setTotalDuration(duration);
+
+        demandRepository.save(demand);
+    }
 }
