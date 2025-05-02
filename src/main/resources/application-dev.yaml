@@ -4,3 +4,8 @@ spring:
       host: localhost
       port: 27017
       database: demands
+
+api:
+  security:
+    token:
+      secret:

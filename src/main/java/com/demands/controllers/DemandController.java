@@ -24,19 +24,10 @@ public class DemandController {
 
     private final DemandService demandService;
 
-//    @PostMapping
-//    public ResponseEntity<ApiResponse> createDemand(@RequestBody DemandDTO demandDTO) {
-//        DemandEntity demand = convertToEntity(demandDTO);
-//        DemandEntity createdDemand = demandService.createDemand(demand);
-//        DemandDTO createdDemandDTO = convertToDTO(createdDemand);
-//        ApiResponse response = new ApiResponse(HttpStatus.OK.value(), "Demanda criada com sucesso.", createdDemandDTO);
-//        return new ResponseEntity<>(response, HttpStatus.OK);
-//    }
-
     @PostMapping
     public ResponseEntity<ApiResponse> createDemand(HttpServletRequest request, @Valid @RequestBody DemandDTO demandDTO) {
-        String userEmail = (String) request.getAttribute("userEmail");
-        demandDTO.setUserId(userEmail); // <-- garanta que salva o email do usuário autenticado
+        String userId = (String) request.getAttribute("userId");
+        demandDTO.setUserId(userId); // <-- garanta que salva o email do usuário autenticado
         DemandEntity demand = convertToEntity(demandDTO);
         DemandEntity createdDemand = demandService.createDemand(demand);
         DemandDTO createdDemandDTO = convertToDTO(createdDemand);
@@ -108,8 +99,8 @@ public class DemandController {
 
     @GetMapping
     public ResponseEntity<List<DemandDTO>> getUserDemands(HttpServletRequest request) {
-        String userEmail = (String) request.getAttribute("userEmail");
-        List<DemandEntity> demands = demandService.getDemandsByUserEmail(userEmail);
+        String userId = (String) request.getAttribute("userId"); // Use userId instead of userEmail
+        List<DemandEntity> demands = demandService.getDemandsByUserId(userId); // Update service call
         List<DemandDTO> demandDTOs = demands.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());

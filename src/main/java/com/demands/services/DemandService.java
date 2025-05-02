@@ -171,4 +171,14 @@ public class DemandService {
 
         demandRepository.save(demand);
     }
+
+    public List<DemandEntity> getDemandsByUserId(String userId) {
+        log.info("Fetching demands for userId: {}", userId);
+        List<DemandEntity> demands = demandRepository.findByUserId(userId);
+        if (demands.isEmpty()) {
+            log.warn("No demands found for userId: {}", userId);
+            throw new DemandNotFound("O usuário não possui demandas.");
+        }
+        return demands;
+    }
 }

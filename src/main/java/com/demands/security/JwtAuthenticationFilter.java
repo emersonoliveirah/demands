@@ -26,8 +26,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             String token = authorizationHeader.substring(7);
             try {
-                String userEmail = jwtUtil.extractUserEmail(token);
-                request.setAttribute("userEmail", userEmail);
+                String userId = jwtUtil.extractUserId(token); // Updated to extract userId
+                request.setAttribute("userId", userId); // Updated attribute name
             } catch (IllegalArgumentException e) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.getWriter().write("Invalid JWT token");

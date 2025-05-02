@@ -6,7 +6,6 @@ import java.nio.charset.StandardCharsets;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-
 @Component
 public class JwtUtil {
 
@@ -28,7 +27,7 @@ public class JwtUtil {
         }
     }
 
-    public String extractUserEmail(String token) {
-        return extractClaims(token).getSubject();
+    public String extractUserId(String token) {
+        return extractClaims(token).getSubject(); // Extracts the "sub" claim
     }
 }
