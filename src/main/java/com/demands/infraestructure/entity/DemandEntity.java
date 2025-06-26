@@ -35,6 +35,7 @@ public class DemandEntity {
     private long totalDuration; // in seconds
     private boolean autoStart;
     private LocalDateTime endTime;
+    private String groupId; // Add this field
     @LastModifiedDate
     private LocalDateTime statusDate;
 

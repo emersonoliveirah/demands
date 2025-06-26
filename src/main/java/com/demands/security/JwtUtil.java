@@ -29,5 +29,14 @@ public class JwtUtil {
 
     public String extractUserId(String token) {
         return extractClaims(token).getSubject(); // Extracts the "sub" claim
+
+    }
+
+    public String extractRole(String token) {
+        return extractClaims(token).get("role", String.class); // Extracts the "role" claim
+    }
+
+    public String extractGroupId(String token) {
+        return extractClaims(token).get("groupId", String.class); // Extracts the "groupId" claim
     }
 }

@@ -181,4 +181,14 @@ public class DemandService {
         }
         return demands;
     }
+
+    public List<DemandEntity> getDemandsByUserAndSubordinates(String userId, String role, String groupId) {
+        if (role.equals("SUPERVISOR") || role.equals("ADMIN")) {
+            // Busca demandas do supervisor e do grupo
+            return demandRepository.findByUserIdInAndGroupId(userId, groupId);
+        } else {
+            // Retorna apenas as demandas do próprio usuário
+            return demandRepository.findByUserId(userId);
+        }
+    }
 }

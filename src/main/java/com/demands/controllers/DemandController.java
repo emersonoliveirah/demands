@@ -6,6 +6,7 @@ import com.demands.infraestructure.entity.DemandEntity;
 import com.demands.infraestructure.exceptions.ApiResponse;
 import com.demands.infraestructure.exceptions.DemandNotFound;
 import com.demands.infraestructure.exceptions.InvalidStatusException;
+import com.demands.security.JwtUtil;
 import com.demands.services.DemandService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 public class DemandController {
 
     private final DemandService demandService;
+    private final JwtUtil jwtUtil;
 
     @PostMapping
     public ResponseEntity<ApiResponse> createDemand(HttpServletRequest request, @Valid @RequestBody DemandDTO demandDTO) {
@@ -166,6 +168,20 @@ public class DemandController {
         } catch (DemandNotFound ex) {
             return new ResponseEntity<>(new ApiResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage()), HttpStatus.NOT_FOUND);
         }
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<?> getAllDemands(HttpServletRequest request) {
+        String token = request.getHeader("Authorization").substring(7); // Remove "Bearer "
+        String userId = jwtUtil.extractUserId(token);
+        String role = jwtUtil.extractRole(token);
+        String groupId = jwtUtil.extractGroupId(token);
+
+        List<DemandEntity> demands = demandService.getDemandsByUserAndSubordinates(userId, role, groupId);
+        List<DemandDTO> demandDTOs = demands.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(demandDTOs);
     }
 
     // Métodos de conversão entre DTO e Entidade
