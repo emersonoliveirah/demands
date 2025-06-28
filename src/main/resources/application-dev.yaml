@@ -8,4 +8,4 @@ spring:
 api:
   security:
     token:
-      secret:
+      secret: ${SECRET_KEY}
