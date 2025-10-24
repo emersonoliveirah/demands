@@ -85,19 +85,19 @@ public class DemandController {
 //        DemandDTO demandDTO = convertToDTO(demand);
 //        return ResponseEntity.ok(demandDTO);
 //    }
-//
-//    @GetMapping("/user/{userId}")
-//    public ResponseEntity<?> getDemandsByAnyUserId(@PathVariable String userId) {
-//        try {
-//            List<DemandEntity> demands = demandService.getDemandsByAnyUserId(userId);
-//            List<DemandDTO> demandDTOs = demands.stream()
-//                    .map(this::convertToDTO)
-//                    .collect(Collectors.toList());
-//            return ResponseEntity.ok(demandDTOs);
-//        } catch (DemandNotFound ex) {
-//            return new ResponseEntity<>(new ApiResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage()), HttpStatus.NOT_FOUND);
-//        }
-//    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<?> getDemandsByAnyUserId(@PathVariable String userId) {
+        try {
+            List<DemandEntity> demands = demandService.getDemandsByAnyUserId(userId);
+            List<DemandDTO> demandDTOs = demands.stream()
+                    .map(this::convertToDTO)
+                    .collect(Collectors.toList());
+            return ResponseEntity.ok(demandDTOs);
+        } catch (DemandNotFound ex) {
+            return new ResponseEntity<>(new ApiResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage()), HttpStatus.NOT_FOUND);
+        }
+    }
 
     @GetMapping
     public ResponseEntity<List<DemandDTO>> getUserDemands(HttpServletRequest request) {

@@ -11,7 +11,7 @@ public interface DemandRepository extends MongoRepository<DemandEntity, String> 
 
     List<DemandEntity> findByStatus(DemandStatus status);
 
-    List<DemandEntity> findByUserIdOrUserIdsContaining(String userId, String userIds);
+    List<DemandEntity> findByUserIdOrUserIdsContaining(String userId, String userIdContaining);
 
     List<DemandEntity> findByUserIdInAndGroupId(String userId, String groupId);
 

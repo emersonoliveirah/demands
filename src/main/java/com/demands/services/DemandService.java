@@ -30,10 +30,10 @@ public class DemandService {
 //        return demands;
 //    }
 //
-//    public List<DemandEntity> getAllDemands() {
-//        log.info("Fetching all demands");
-//        return demandRepository.findAll();
-//    }
+    public List<DemandEntity> getAllDemands() {
+        log.info("Fetching all demands");
+        return demandRepository.findAll();
+    }
 
     public List<DemandEntity> getDemandsByUserEmail(String userEmail) {
         return demandRepository.findByUserId(userEmail);
@@ -89,10 +89,17 @@ public class DemandService {
         log.info("Pausing demand with id: {}", demandId);
         DemandEntity demand = demandRepository.findById(demandId)
                 .orElseThrow(() -> new DemandNotFound("Demanda não encontrada"));
+
         if (demand.getStatus() == DemandStatus.CLOSED) {
             log.error("Cannot pause a closed demand with id: {}", demandId);
             throw new IllegalStateException("Não é possível pausar uma demanda que já foi encerrada.");
         }
+
+        if (demand.getStartTime() == null) {
+            log.error("Cannot pause demand with id: {} because startTime is null", demandId);
+            throw new IllegalStateException("Não é possível pausar uma demanda sem um horário de início.");
+        }
+
         demand.setPauseTime(LocalDateTime.now());
         long duration = Duration.between(demand.getStartTime(), demand.getPauseTime()).getSeconds();
         demand.setTotalDuration(demand.getTotalDuration() + duration);
@@ -132,6 +139,7 @@ public class DemandService {
         DemandEntity demand = demandRepository.findById(demandId)
                 .orElseThrow(() -> new DemandNotFound("Demanda não encontrada"));
         demandRepository.delete(demand);
+        log.info("Demand with id {} deleted successfully.", demandId);
     }
 
     public DemandEntity getDemand(String demandId) {
@@ -183,7 +191,7 @@ public class DemandService {
     }
 
     public List<DemandEntity> getDemandsByUserAndSubordinates(String userId, String role, String groupId) {
-        if (role.equals("SUPERVISOR") || role.equals("ADMIN")) {
+            if (role.equals("MANAGER") || role.equals("ADMIN")) {
             // Busca demandas do supervisor e do grupo
             return demandRepository.findByUserIdInAndGroupId(userId, groupId);
         } else {
